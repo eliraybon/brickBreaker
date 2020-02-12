@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <header>
+    <title>Game</title>
+  </header>
+
+  <body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <script>
+      let canvas, canvasContext;
+
+      let ballX = 75;
+      let ballY = 75;
+      let ballR = 10;
+      let ballSpeedX = 5;
+      let ballSpeedY = 7;
+
+      const PADDLE_WIDTH = 100;
+      const PADDLE_THICKNESS = 10;
+      const PADDLE_DIST_FROM_EDGE = 60;
+      let paddleX = 400;
+
+      function updateMousePos(evt) {
+        const rect = canvas.getBoundingClientRect();
+        const root = document.documentElement;
+
+        const mouseX = evt.clientX - rect.left - root.scrollLeft;
+        // const mouseY = evt.clientY - rect.top - root.scrollTop;
+
+        paddleX = mouseX - PADDLE_WIDTH / 2;
+      }
+      
+      window.onload = () => {
+        canvas = document.getElementById('gameCanvas');
+        canvasContext = canvas.getContext('2d');
+
+        canvas.addEventListener('mousemove', updateMousePos);
+
+        const framesPerSecond = 30;
+        requestAnimationFrame(updateAll);
+      }
+
+      function updateAll() {
+        moveAll();
+        drawAll();
+
+        requestAnimationFrame(updateAll)
+      }
+
+      function drawAll() {
+        colorRect(0, 0, canvas.width, canvas.height, 'black');
+        colorCircle(ballX, ballY, ballR, 'white');
+        colorRect(
+          paddleX, canvas.height - PADDLE_DIST_FROM_EDGE, 
+          PADDLE_WIDTH, PADDLE_THICKNESS, 'white'
+        )
+      }
+
+      function moveAll() {
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
+
+        if (ballX < 0) { // left
+          ballSpeedX *= -1;
+        }
+
+        if (ballX > canvas.width) { // right
+          ballSpeedX *= -1;
+        }
+
+        if (ballY < 0) { // top
+          ballSpeedY *= -1;
+        }
+
+        if (ballY > canvas.height) { // bottom
+          ballReset();
+        }
+
+        let paddleTopEdgeY = canvas.height - PADDLE_DIST_FROM_EDGE;
+        let paddleBottomEdgeY = paddleTopEdgeY + PADDLE_THICKNESS;
+        let paddleLeftEdgeX = paddleX;
+        let paddleRightEdgeX = paddleX + PADDLE_WIDTH;
+
+        if (ballY > paddleTopEdgeY && // below top of paddle
+            ballY < paddleBottomEdgeY && // above bottom of paddle
+            ballX > paddleLeftEdgeX && // right of the left side of paddle
+            ballX < paddleRightEdgeX) { // left of the right side of paddle
+              ballSpeedY *= -1;
+
+              const centerOfPaddleX = paddleX + PADDLE_WIDTH / 2;
+              const ballDistFromPaddleCenterX = ballX - centerOfPaddleX;
+              ballSpeedX = ballDistFromPaddleCenterX * 0.35;
+          }
+      }
+
+      function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
+        canvasContext.fillStyle = fillColor;
+        canvasContext.fillRect(topLeftX, topLeftY, boxWidth, boxHeight);
+      }
+
+      function colorCircle(centerX, centerY, radius, fillColor) {
+        canvasContext.fillStyle = fillColor;
+        canvasContext.beginPath();
+        canvasContext.arc(centerX, centerY, radius, 0, Math.PI * 2, true);
+        canvasContext.fill();
+      }
+
+      function ballReset() {
+        ballX = canvas.width / 2;
+        ballY = canvas.height / 2;
+      }
+
+    </script>
+    
+  </body>
+</html>

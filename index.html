@@ -82,10 +82,10 @@
         let paddleLeftEdgeX = paddleX;
         let paddleRightEdgeX = paddleX + PADDLE_WIDTH;
 
-        if (ballY > paddleTopEdgeY && // below top of paddle
-            ballY < paddleBottomEdgeY && // above bottom of paddle
-            ballX > paddleLeftEdgeX && // right of the left side of paddle
-            ballX < paddleRightEdgeX) { // left of the right side of paddle
+        if (ballY + ballR > paddleTopEdgeY && // below top of paddle
+            ballY + ballR < paddleBottomEdgeY && // above bottom of paddle
+            ballX + ballR > paddleLeftEdgeX && // right of the left side of paddle
+            ballX + ballR < paddleRightEdgeX) { // left of the right side of paddle
               ballSpeedY *= -1;
 
               const centerOfPaddleX = paddleX + PADDLE_WIDTH / 2;

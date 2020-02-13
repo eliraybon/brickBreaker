@@ -21,12 +21,21 @@
       const PADDLE_DIST_FROM_EDGE = 60;
       let paddleX = 400;
 
+      const BRICK_W = 100;
+      const BRICK_H = 50;
+      const BRICK_COUNT = 8;
+      const BRICK_ROWS = 2;
+      const brickGrid = new Array(BRICK_COUNT);
+      
+      let mouseX;
+      let mouseY;
+
       function updateMousePos(evt) {
         const rect = canvas.getBoundingClientRect();
         const root = document.documentElement;
 
-        const mouseX = evt.clientX - rect.left - root.scrollLeft;
-        // const mouseY = evt.clientY - rect.top - root.scrollTop;
+        mouseX = evt.clientX - rect.left - root.scrollLeft;
+        mouseY = evt.clientY - rect.top - root.scrollTop;
 
         paddleX = mouseX - PADDLE_WIDTH / 2;
       }
@@ -36,14 +45,16 @@
         canvasContext = canvas.getContext('2d');
 
         canvas.addEventListener('mousemove', updateMousePos);
+        brickReset();
 
-        const framesPerSecond = 30;
         requestAnimationFrame(updateAll);
       }
 
       function updateAll() {
         moveAll();
         drawAll();
+        drawBricks();
+        colorText(mouseX / BRICK_W + ',' + mouseY / BRICK_H, mouseX, mouseY, 'yellow');
 
         requestAnimationFrame(updateAll)
       }
@@ -106,9 +117,28 @@
         canvasContext.fill();
       }
 
+      function drawBricks() {
+        for (let i = 0; i < BRICK_COUNT; i++) {
+          if (brickGrid[i]) {
+            colorRect(BRICK_W * i, 0, BRICK_W - 2, BRICK_H, 'blue')
+          }
+        }
+      }
+
       function ballReset() {
         ballX = canvas.width / 2;
         ballY = canvas.height / 2;
+      }
+
+      function brickReset() {
+        for (let i = 0; i < BRICK_COUNT; i++) {
+          brickGrid[i] = Math.random() < 0.5 ? true : false;
+        }
+      }
+
+      function colorText(showWords, textX, textY, fillColor) {
+        canvasContext.fillStyle = fillColor;
+        canvasContext.fillText(showWords, textX, textY);
       }
 
     </script>

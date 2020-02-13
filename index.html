@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <header>
-    <title>Game</title>
+    <title>Bricks</title>
   </header>
 
   <body>
@@ -21,11 +21,12 @@
       const PADDLE_DIST_FROM_EDGE = 60;
       let paddleX = 400;
 
-      const BRICK_W = 100;
-      const BRICK_H = 50;
-      const BRICK_COUNT = 8;
-      const BRICK_ROWS = 2;
-      const brickGrid = new Array(BRICK_COUNT);
+      const BRICK_W = 80;
+      const BRICK_H = 20;
+      const BRICK_GAP = 2;
+      const BRICK_COLS = 10;
+      const BRICK_ROWS = 10;
+      const brickGrid = new Array(BRICK_ROWS * BRICK_COLS);
       
       let mouseX;
       let mouseY;
@@ -53,8 +54,6 @@
       function updateAll() {
         moveAll();
         drawAll();
-        drawBricks();
-        colorText(mouseX / BRICK_W + ',' + mouseY / BRICK_H, mouseX, mouseY, 'yellow');
 
         requestAnimationFrame(updateAll)
       }
@@ -66,26 +65,44 @@
           paddleX, canvas.height - PADDLE_DIST_FROM_EDGE, 
           PADDLE_WIDTH, PADDLE_THICKNESS, 'white'
         )
+        drawBricks();
+
+        // let mouseBrickCol = Math.floor(mouseX / BRICK_W);
+        // let mouseBrickRow = Math.floor(mouseY / BRICK_H);
+        // let brickIndexUnderMouse = rowColToArrayIndex(mouseBrickCol, mouseBrickRow);
+        // colorText(mouseBrickCol + ',' + mouseBrickRow + ':' + brickIndexUnderMouse, mouseX, mouseY, 'yellow');
       }
 
       function moveAll() {
         ballX += ballSpeedX;
         ballY += ballSpeedY;
 
-        if (ballX < 0) { // left
+        if (ballX - ballR < 0) { // left
           ballSpeedX *= -1;
         }
 
-        if (ballX > canvas.width) { // right
+        if (ballX + ballR > canvas.width) { // right
           ballSpeedX *= -1;
         }
 
-        if (ballY < 0) { // top
+        if (ballY - ballR < 0) { // top
           ballSpeedY *= -1;
         }
 
-        if (ballY > canvas.height) { // bottom
+        if (ballY + ballR > canvas.height) { // bottom
           ballReset();
+        }
+
+        let ballBrickCol = Math.floor(ballX / BRICK_W);
+        let ballBrickRow = Math.floor(ballY / BRICK_H);
+        let brickIndexUnderBall = rowColToArrayIndex(ballBrickCol, ballBrickRow);
+
+        if (ballBrickCol >= 0 && ballBrickCol < BRICK_COLS &&
+            ballBrickRow >= 0 && ballBrickRow < BRICK_ROWS) {
+            if (brickGrid[brickIndexUnderBall]) {
+              brickGrid[brickIndexUnderBall] = false;
+              ballSpeedY *= -1;
+            }
         }
 
         let paddleTopEdgeY = canvas.height - PADDLE_DIST_FROM_EDGE;
@@ -118,9 +135,17 @@
       }
 
       function drawBricks() {
-        for (let i = 0; i < BRICK_COUNT; i++) {
-          if (brickGrid[i]) {
-            colorRect(BRICK_W * i, 0, BRICK_W - 2, BRICK_H, 'blue')
+        for (let row = 0; row < BRICK_ROWS; row++) {
+          for (let col = 0; col < BRICK_COLS; col++) {
+            let idx = rowColToArrayIndex(col, row);
+            if (brickGrid[idx]) {
+              colorRect(
+                BRICK_W * col, BRICK_H * row, 
+                BRICK_W - BRICK_GAP, 
+                BRICK_H - BRICK_GAP, 
+                'blue'
+              )
+            }
           }
         }
       }
@@ -131,14 +156,18 @@
       }
 
       function brickReset() {
-        for (let i = 0; i < BRICK_COUNT; i++) {
-          brickGrid[i] = Math.random() < 0.5 ? true : false;
+        for (let i = 0; i < BRICK_ROWS * BRICK_COLS; i++) {
+          brickGrid[i] = true;
         }
       }
 
       function colorText(showWords, textX, textY, fillColor) {
         canvasContext.fillStyle = fillColor;
         canvasContext.fillText(showWords, textX, textY);
+      }
+
+      function rowColToArrayIndex(col, row) {
+        return col + BRICK_COLS * row;
       }
 
     </script>

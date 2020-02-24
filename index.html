@@ -33,7 +33,7 @@
       const BRICK_COLS = 10;
       const BRICK_ROWS = 14;
       const brickGrid = new Array(BRICK_ROWS * BRICK_COLS);
-      let brickLeft = 0;
+      let bricksLeft = 0;
 
       const COLORS = ['blue', 'red', 'green', 'yellow', 'orange', 'pink', 'purple']
       
@@ -54,6 +54,7 @@
         canvas = document.getElementById('gameCanvas');
         canvasContext = canvas.getContext('2d');
 
+
         canvas.addEventListener('mousemove', updateMousePos);
         brickReset();
         ballReset();
@@ -64,6 +65,7 @@
       function updateAll() {
         moveAll();
         drawAll();
+
 
         requestAnimationFrame(updateAll)
       }
@@ -76,6 +78,9 @@
           PADDLE_WIDTH, PADDLE_THICKNESS, 'white'
         )
         drawBricks();
+        // text, font, topLeftX, topLeftY, color
+        writeText(`${bricksLeft} Bricks Remaining`, '20px Arial', 600, 20, 'white');
+
 
         // BRICK DEBUG TOOLS
         // let mouseBrickCol = Math.floor(mouseX / BRICK_W);
@@ -187,6 +192,12 @@
         canvasContext.beginPath();
         canvasContext.arc(centerX, centerY, radius, 0, Math.PI * 2, true);
         canvasContext.fill();
+      }
+
+      function writeText(text, font, topLeftX, topLeftY, color) {
+        canvasContext.fillStyle = color;
+        canvasContext.font = font;
+        canvasContext.fillText(text, topLeftX, topLeftY);
       }
 
       function drawBricks() {

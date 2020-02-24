@@ -15,6 +15,7 @@
     
     <script>
       let canvas, canvasContext;
+      let animationFrame;
 
       let ballX = 75;
       let ballY = 75;
@@ -26,6 +27,7 @@
       const PADDLE_THICKNESS = 10;
       const PADDLE_DIST_FROM_EDGE = 60;
       let paddleX = 350;
+
 
       const BRICK_W = 80.2;
       const BRICK_H = 20;
@@ -39,6 +41,8 @@
       
       let mouseX;
       let mouseY;
+
+      let over = false;
 
       function updateMousePos(evt) {
         const rect = canvas.getBoundingClientRect();
@@ -54,20 +58,43 @@
         canvas = document.getElementById('gameCanvas');
         canvasContext = canvas.getContext('2d');
 
+        // draw prompt
+        canvasContext.textAlign = "center";
+        colorRect(0, 0, canvas.width, canvas.height, 'black');
+        writeText('Click to Start', '40px Arial', canvas.width / 2, canvas.height / 2, 'white');
+        canvas.addEventListener('click', startGame);
+      }
 
+      function startGame() {
+        canvas.removeEventListener('click', startGame);
         canvas.addEventListener('mousemove', updateMousePos);
         brickReset();
         ballReset();
 
-        requestAnimationFrame(updateAll);
+        animationFrame = requestAnimationFrame(updateAll);
+      }
+
+      function gameOver() {
+        cancelAnimationFrame(animationFrame);
+        canvas.removeEventListener('mousemove', updateMousePos);
+        canvas.addEventListener('click', startGame);
+        canvasContext.textAlign = "center";
+        colorRect(0, 0, canvas.width, canvas.height, 'black');
+        writeText('Play Again?', '40px Arial', canvas.width / 2, canvas.height / 2, 'white');
       }
 
       function updateAll() {
         moveAll();
         drawAll();
 
+        if (over) {
+          cancelAnimationFrame(animationFrame);
+          gameOver();
+          over = false;
+          return;
+        }
 
-        requestAnimationFrame(updateAll)
+        animationFrame = requestAnimationFrame(updateAll);
       }
 
       function drawAll() {
@@ -79,6 +106,7 @@
         )
         drawBricks();
         // text, font, topLeftX, topLeftY, color
+        canvasContext.textAlign = "start";
         writeText(`${bricksLeft} Bricks Remaining`, '20px Arial', 600, 20, 'white');
 
 
@@ -109,6 +137,7 @@
           ballReset();
           brickReset();
           paddleX = 350;
+          over = true;
         }
       }
 
@@ -171,7 +200,10 @@
           ballSpeedX = ballDistFromPaddleCenterX * 0.35;
 
           if (bricksLeft === 0) {
+            ballReset();
             brickReset();
+            paddleX = 350;
+            over = true;
           }
         }
       }
